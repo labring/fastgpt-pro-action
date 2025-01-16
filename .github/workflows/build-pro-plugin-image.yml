@@ -13,6 +13,7 @@ jobs:
         with:
           fetch-depth: 0
           repository: labring/fastgpt-pro
+          ref: ${{ github.ref_name }}
       - name: Update submodules
         run: git submodule update --init --recursive # update git submodule
       - name: Install Dependencies
