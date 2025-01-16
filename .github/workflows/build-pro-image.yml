@@ -44,11 +44,6 @@ jobs:
           registry: registry.cn-hangzhou.aliyuncs.com
           username: ${{ secrets.ALI_HUB_USERNAME }}
           password: ${{ secrets.ALI_HUB_PASSWORD }}
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_NAME }}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
       - name: Set DOCKER_REPO_TAGGED based on branch or tag
         run: |
@@ -57,15 +52,11 @@ jobs:
             echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/fastgpt-pro:latest" >> $GITHUB_ENV
             echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro:latest" >> $GITHUB_ENV
-            echo "Docker_Hub_Tag=${{ secrets.DOCKER_IMAGE_NAME }}/fastgpt-pro:latest" >> $GITHUB_ENV
-            echo "Docker_Hub_Latest=${{ secrets.DOCKER_IMAGE_NAME }}/fastgpt-pro:latest" >> $GITHUB_ENV
           else
             echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/fastgpt-pro:${{ github.ref_name }}" >> $GITHUB_ENV
             echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/fastgpt-pro:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro:${{ github.ref_name }}" >> $GITHUB_ENV
             echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro:latest" >> $GITHUB_ENV
-            echo "Docker_Hub_Tag=${{ secrets.DOCKER_IMAGE_NAME }}/fastgpt-pro:${{ github.ref_name }}" >> $GITHUB_ENV
-            echo "Docker_Hub_Latest=${{ secrets.DOCKER_IMAGE_NAME }}/fastgpt-pro:latest" >> $GITHUB_ENV
           fi
 
       - name: Build and publish image for main branch or tag push event
@@ -85,16 +76,15 @@ jobs:
           -t ${Git_Latest} \
           -t ${Ali_Tag} \
           -t ${Ali_Latest} \
-          -t ${Docker_Hub_Tag} \
-          -t ${Docker_Hub_Latest} \
           .
   build-fastgpt-pro-images-sub-route:
     runs-on: ubuntu-20.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          repository: labring/fastgpt-pro
       - name: Update submodules
         run: git submodule update --init --recursive # update git submodule
       - name: Install Dependencies
@@ -125,11 +115,6 @@ jobs:
           registry: registry.cn-hangzhou.aliyuncs.com
           username: ${{ secrets.ALI_HUB_USERNAME }}
           password: ${{ secrets.ALI_HUB_PASSWORD }}
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_NAME }}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
       # Set tag
       - name: Set image name and tag
         run: |
@@ -138,15 +123,11 @@ jobs:
             echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
             echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
-            echo "Docker_Hub_Tag=${{ secrets.DOCKER_IMAGE_NAME }}/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
-            echo "Docker_Hub_Latest=${{ secrets.DOCKER_IMAGE_NAME }}/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
           else
             echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-sub-route:${{ github.ref_name }}" >> $GITHUB_ENV
             echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route:${{ github.ref_name }}" >> $GITHUB_ENV
             echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
-            echo "Docker_Hub_Tag=${{ secrets.DOCKER_IMAGE_NAME }}/fastgpt-pro-sub-route:${{ github.ref_name }}" >> $GITHUB_ENV
-            echo "Docker_Hub_Latest=${{ secrets.DOCKER_IMAGE_NAME }}/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
           fi
 
       - name: Build and publish image for main branch or tag push event
@@ -166,16 +147,15 @@ jobs:
           -t ${Git_Latest} \
           -t ${Ali_Tag} \
           -t ${Ali_Latest} \
-          -t ${Docker_Hub_Tag} \
-          -t ${Docker_Hub_Latest} \
           .
   build-fastgpt-pro-images-sub-route-gchat:
     runs-on: ubuntu-20.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          repository: labring/fastgpt-pro
       - name: Update submodules
         run: git submodule update --init --recursive # update git submodule
       - name: Install Dependencies
@@ -206,11 +186,6 @@ jobs:
           registry: registry.cn-hangzhou.aliyuncs.com
           username: ${{ secrets.ALI_HUB_USERNAME }}
           password: ${{ secrets.ALI_HUB_PASSWORD }}
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_NAME }}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
       # Set tag
       - name: Set image name and tag
         run: |
@@ -219,15 +194,11 @@ jobs:
             echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
             echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
-            echo "Docker_Hub_Tag=${{ secrets.DOCKER_IMAGE_NAME }}/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
-            echo "Docker_Hub_Latest=${{ secrets.DOCKER_IMAGE_NAME }}/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
           else
             echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-sub-route-gchat-admin:${{ github.ref_name }}" >> $GITHUB_ENV
             echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route-gchat-admin:${{ github.ref_name }}" >> $GITHUB_ENV
             echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
-            echo "Docker_Hub_Tag=${{ secrets.DOCKER_IMAGE_NAME }}/fastgpt-pro-sub-route-gchat-admin:${{ github.ref_name }}" >> $GITHUB_ENV
-            echo "Docker_Hub_Latest=${{ secrets.DOCKER_IMAGE_NAME }}/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
           fi
 
       - name: Build and publish image for main branch or tag push event
@@ -247,6 +218,4 @@ jobs:
           -t ${Git_Latest} \
           -t ${Ali_Tag} \
           -t ${Ali_Latest} \
-          -t ${Docker_Hub_Tag} \
-          -t ${Docker_Hub_Latest} \
           .
