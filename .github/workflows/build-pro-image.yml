@@ -38,7 +38,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
+          username: labring
           password: ${{ secrets.GH_PAT }}
       - name: Login to Ali Hub
         uses: docker/login-action@v2
@@ -50,13 +50,13 @@ jobs:
       - name: Set DOCKER_REPO_TAGGED based on branch or tag
         run: |
           if [[ "${{ github.ref_name }}" == "main" ]]; then
-            echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/fastgpt-pro:latest" >> $GITHUB_ENV
-            echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/fastgpt-pro:latest" >> $GITHUB_ENV
+            echo "Git_Latest=ghcr.io/labring/fastgpt-pro:latest" >> $GITHUB_ENV
+            echo "Git_Tag=ghcr.io/labring/fastgpt-pro:latest" >> $GITHUB_ENV
             echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro:latest" >> $GITHUB_ENV
           else
-            echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/fastgpt-pro:${{ github.ref_name }}" >> $GITHUB_ENV
-            echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/fastgpt-pro:latest" >> $GITHUB_ENV
+            echo "Git_Tag=ghcr.io/labring/fastgpt-pro:${{ github.ref_name }}" >> $GITHUB_ENV
+            echo "Git_Latest=ghcr.io/labring/fastgpt-pro:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro:${{ github.ref_name }}" >> $GITHUB_ENV
             echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro:latest" >> $GITHUB_ENV
           fi
@@ -69,7 +69,7 @@ jobs:
           -f projects/app/Dockerfile \
           --build-arg name=app \
           --platform linux/amd64,linux/arm64 \
-          --label "org.opencontainers.image.source=https://github.com/${{ github.repository_owner }}/fastgpt-pro" \
+          --label "org.opencontainers.image.source=https://github.com/labring/fastgpt-pro" \
           --label "org.opencontainers.image.description=fastgpt-pro image" \
           --push \
           --cache-from=type=local,src=/tmp/.buildx-cache \
@@ -111,7 +111,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
+          username: labring
           password: ${{ secrets.GH_PAT }}
       - name: Login to Ali Hub
         uses: docker/login-action@v2
@@ -123,13 +123,13 @@ jobs:
       - name: Set image name and tag
         run: |
           if [[ "${{ github.ref_name }}" == "main" ]]; then
-            echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
-            echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
+            echo "Git_Tag=ghcr.io/labring/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
+            echo "Git_Latest=ghcr.io/labring/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
             echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
           else
-            echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-sub-route:${{ github.ref_name }}" >> $GITHUB_ENV
-            echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
+            echo "Git_Tag=ghcr.io/labring/fastgpt-pro-sub-route:${{ github.ref_name }}" >> $GITHUB_ENV
+            echo "Git_Latest=ghcr.io/labring/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route:${{ github.ref_name }}" >> $GITHUB_ENV
             echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route:latest" >> $GITHUB_ENV
           fi
@@ -142,7 +142,7 @@ jobs:
           -f projects/app/Dockerfile \
           --platform linux/amd64,linux/arm64 \
           --build-arg base_url=/fastaipro \
-          --label "org.opencontainers.image.source=https://github.com/${{ github.repository_owner }}/FastGPT" \
+          --label "org.opencontainers.image.source=https://github.com/labring/FastGPT" \
           --label "org.opencontainers.image.description=fastgpt-pro image" \
           --push \
           --cache-from=type=local,src=/tmp/.buildx-cache \
@@ -184,7 +184,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
+          username: labring
           password: ${{ secrets.GH_PAT }}
       - name: Login to Ali Hub
         uses: docker/login-action@v2
@@ -196,13 +196,13 @@ jobs:
       - name: Set image name and tag
         run: |
           if [[ "${{ github.ref_name }}" == "main" ]]; then
-            echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
-            echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
+            echo "Git_Tag=ghcr.io/labring/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
+            echo "Git_Latest=ghcr.io/labring/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
             echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
           else
-            echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-sub-route-gchat-admin:${{ github.ref_name }}" >> $GITHUB_ENV
-            echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
+            echo "Git_Tag=ghcr.io/labring/fastgpt-pro-sub-route-gchat-admin:${{ github.ref_name }}" >> $GITHUB_ENV
+            echo "Git_Latest=ghcr.io/labring/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route-gchat-admin:${{ github.ref_name }}" >> $GITHUB_ENV
             echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-sub-route-gchat-admin:latest" >> $GITHUB_ENV
           fi
@@ -215,7 +215,7 @@ jobs:
           -f projects/app/Dockerfile \
           --platform linux/amd64,linux/arm64 \
           --build-arg base_url=/gchat-admin \
-          --label "org.opencontainers.image.source=https://github.com/${{ github.repository_owner }}/FastGPT" \
+          --label "org.opencontainers.image.source=https://github.com/labring/FastGPT" \
           --label "org.opencontainers.image.description=fastgpt-pro-sub-route-gchat-admin image" \
           --push \
           --cache-from=type=local,src=/tmp/.buildx-cache \

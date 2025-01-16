@@ -37,7 +37,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
+          username: labring
           password: ${{ secrets.GH_PAT }}
       - name: Login to Ali Hub
         uses: docker/login-action@v2
@@ -48,13 +48,13 @@ jobs:
       - name: Set DOCKER_REPO_TAGGED based on branch or tag
         run: |
           if [[ "${{ github.ref_name }}" == "main" ]]; then
-            echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-plugin:latest" >> $GITHUB_ENV
-            echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-plugin:latest" >> $GITHUB_ENV
+            echo "Git_Latest=ghcr.io/labring/fastgpt-pro-plugin:latest" >> $GITHUB_ENV
+            echo "Git_Tag=ghcr.io/labring/fastgpt-pro-plugin:latest" >> $GITHUB_ENV
             echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-plugin:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-plugin:latest" >> $GITHUB_ENV
           else
-            echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-plugin:${{ github.ref_name }}" >> $GITHUB_ENV
-            echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/fastgpt-pro-plugin:latest" >> $GITHUB_ENV
+            echo "Git_Tag=ghcr.io/labring/fastgpt-pro-plugin:${{ github.ref_name }}" >> $GITHUB_ENV
+            echo "Git_Latest=ghcr.io/labring/fastgpt-pro-plugin:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-plugin:${{ github.ref_name }}" >> $GITHUB_ENV
             echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-pro-plugin:latest" >> $GITHUB_ENV
           fi
@@ -67,7 +67,7 @@ jobs:
           -f projects/plugin/Dockerfile \
           --build-arg name=plugin \
           --platform linux/amd64,linux/arm64 \
-          --label "org.opencontainers.image.source=https://github.com/${{ github.repository_owner }}/fastgpt-pro-plugin" \
+          --label "org.opencontainers.image.source=https://github.com/labring/fastgpt-pro-plugin" \
           --label "org.opencontainers.image.description=fastgpt-pro-plugin image" \
           --push \
           --cache-from=type=local,src=/tmp/.buildx-cache \
