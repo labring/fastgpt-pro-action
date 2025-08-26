@@ -54,6 +54,9 @@ jobs:
             git checkout "${VERSION}"
           fi
           
+          # Update submodules again after checkout
+          git submodule update --recursive
+          
           # Display current commit info
           echo "Current fastgpt-pro commit:"
           git log -1 --oneline
