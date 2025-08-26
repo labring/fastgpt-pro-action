@@ -6,74 +6,149 @@ on:
       - 'v*'
 jobs:
   build-fastgpt-sso-service-images:
-    runs-on: ubuntu-20.04
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    strategy:
+      matrix:
+        archs:
+          - arch: amd64
+          - arch: arm64
+            runs-on: ubuntu-24.04-arm
+    runs-on: ${{ matrix.archs.runs-on || 'ubuntu-24.04' }}
     steps:
-      - name: Checkout code
+      # install env
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          repository: labring/fastgpt-pro
-          ref: ${{ github.ref_name }}
-          token: ${{ secrets.GH_PAT }}
-      - name: Update submodules
-        run: git submodule update --init --recursive # update git submodule
-      - name: Install Dependencies
+          fetch-depth: 1
+
+      # Pull fastgpt-pro repository code for the corresponding release
+      - name: Pull fastgpt-pro repository
         run: |
-          sudo apt update && sudo apt install -y nodejs npm
-      - name: Set up QEMU (optional)
-        uses: docker/setup-qemu-action@v2
+          # Create directory for fastgpt-pro code
+          mkdir -p fastgpt-pro-src
+          cd fastgpt-pro-src
+          
+          # Clone the labring/fastgpt-pro repository using TOKEN for authentication
+          git clone https://${{ secrets.FASTGPT_PRO_TOKEN }}@github.com/labring/fastgpt-pro.git .
+          
+          # Extract version from current tag (remove 'v' prefix if exists)
+          VERSION="${{ github.ref_name }}"
+          if [[ "$VERSION" == "main" ]]; then
+            # If building from main branch, use latest release
+            git checkout $(git describe --tags --abbrev=0)
+          else
+            # Use the corresponding release tag
+            git checkout "${VERSION}"
+          fi
+          
+          # Display current commit info
+          echo "Current fastgpt-pro commit:"
+          git log -1 --oneline
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           driver-opts: network=host
+
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          key: ${{ runner.os }}-${{ matrix.archs.arch }}-sso-buildx-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
+            ${{ runner.os }}-${{ matrix.archs.arch }}-sso-buildx-
+      # login docker
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: labring
-          password: ${{ secrets.GH_PAT }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build for ${{ matrix.archs.arch }}
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: projects/sso/Dockerfile
+          platforms: linux/${{ matrix.archs.arch }}
+          build-args: |
+            name=sso
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.description=fastgpt-sso-service image
+          outputs: type=image,"name=ghcr.io/${{ github.repository_owner }}/fastgpt-sso-service,${{ secrets.ALI_IMAGE_NAME }}/fastgpt-sso-service",push-by-digest=true,push=true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+
+      - name: Export digest
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ github.sha }}-${{ matrix.archs.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  release-fastgpt-sso-service-images:
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    needs: build-fastgpt-sso-service-images
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Login to Ali Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: registry.cn-hangzhou.aliyuncs.com
           username: ${{ secrets.ALI_HUB_USERNAME }}
           password: ${{ secrets.ALI_HUB_PASSWORD }}
-      - name: Set DOCKER_REPO_TAGGED based on branch or tag
+
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-${{ github.sha }}-*
+          merge-multiple: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set image name and tag
         run: |
           if [[ "${{ github.ref_name }}" == "main" ]]; then
-            echo "Git_Latest=ghcr.io/labring/fastgpt-sso-service:latest" >> $GITHUB_ENV
-            echo "Git_Tag=ghcr.io/labring/fastgpt-sso-service:latest" >> $GITHUB_ENV
-            echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-sso-service:latest" >> $GITHUB_ENV
+            echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/fastgpt-sso-service:latest" >> $GITHUB_ENV
+            echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/fastgpt-sso-service:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-sso-service:latest" >> $GITHUB_ENV
+            echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-sso-service:latest" >> $GITHUB_ENV
           else
-            echo "Git_Tag=ghcr.io/labring/fastgpt-sso-service:${{ github.ref_name }}" >> $GITHUB_ENV
-            echo "Git_Latest=ghcr.io/labring/fastgpt-sso-service:latest" >> $GITHUB_ENV
+            echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/fastgpt-sso-service:${{ github.ref_name }}" >> $GITHUB_ENV
+            echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/fastgpt-sso-service:latest" >> $GITHUB_ENV
             echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-sso-service:${{ github.ref_name }}" >> $GITHUB_ENV
             echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/fastgpt-sso-service:latest" >> $GITHUB_ENV
           fi
 
-      - name: Build and publish image for main branch or tag push event
-        env:
-          DOCKER_REPO_TAGGED: ${{ env.DOCKER_REPO_TAGGED }}
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
         run: |
-          docker buildx build \
-          -f projects/sso/Dockerfile \
-          --build-arg name=sso \
-          --platform linux/amd64,linux/arm64 \
-          --label "org.opencontainers.image.source=https://github.com/labring/fastgpt-sso-service" \
-          --label "org.opencontainers.image.description=fastgpt-sso-service image" \
-          --push \
-          --cache-from=type=local,src=/tmp/.buildx-cache \
-          --cache-to=type=local,dest=/tmp/.buildx-cache \
-          -t ${Git_Tag} \
-          -t ${Git_Latest} \
-          -t ${Ali_Tag} \
-          -t ${Ali_Latest} \
-          projects/sso
+          TAGS="$(echo -e "${Git_Tag}\n${Git_Latest}\n${Ali_Tag}\n${Ali_Latest}")"
+          for TAG in $TAGS; do
+            docker buildx imagetools create -t $TAG \
+              $(printf 'ghcr.io/${{ github.repository_owner }}/fastgpt-sso-service@sha256:%s ' *)
+            sleep 5
+          done
