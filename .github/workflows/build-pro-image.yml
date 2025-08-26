@@ -95,8 +95,8 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          context: fastgpt-pro-src
-          file: projects/app/Dockerfile
+          context: ./fastgpt-pro-src
+          file: ./fastgpt-pro-src/projects/app/Dockerfile
           platforms: linux/${{ matrix.archs.arch }}
           build-args: |
             ${{ matrix.sub_routes.base_url && format('base_url={0}', matrix.sub_routes.base_url) || '' }}
