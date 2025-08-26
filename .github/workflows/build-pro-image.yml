@@ -44,6 +44,10 @@ jobs:
           # Clone the labring/fastgpt-pro repository using TOKEN for authentication
           git clone https://${{ secrets.FASTGPT_PRO_TOKEN }}@github.com/labring/fastgpt-pro.git .
           
+          # Initialize and update submodules
+          git submodule init
+          git submodule update --recursive
+          
           # Extract version from current tag (remove 'v' prefix if exists)
           VERSION="${{ github.ref_name }}"
           if [[ "$VERSION" == "main" ]]; then
