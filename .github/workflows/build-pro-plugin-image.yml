@@ -49,18 +49,6 @@ jobs:
           echo "Current fastgpt-pro commit:"
           git log -1 --oneline
 
-      # Debug: Check directory structure
-      - name: Debug directory structure
-        run: |
-          echo "Current working directory:"
-          pwd
-          echo "Contents of current directory:"
-          ls -la
-          echo "Contents of fastgpt-pro-src directory:"
-          ls -la fastgpt-pro-src/
-          echo "Check if projects directory exists:"
-          ls -la fastgpt-pro-src/projects/ || echo "projects directory not found"
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
