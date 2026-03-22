@@ -78,7 +78,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.archs.arch }}-${{ matrix.sub_routes.repo }}-buildx-
 
-      # login docker
+      # login docker (GHCR only; Ali tags are pushed in release job via imagetools)
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -98,7 +98,7 @@ jobs:
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.description=${{ matrix.sub_routes.repo }} image
-          outputs: type=image,"name=ghcr.io/${{ github.repository_owner }}/${{ matrix.sub_routes.repo }},${{ secrets.FASTGPT_ALI_IMAGE_PREFIX }}/${{ matrix.sub_routes.repo }}",push-by-digest=true,push=true
+          outputs: type=image,"name=ghcr.io/${{ github.repository_owner }}/${{ matrix.sub_routes.repo }}",push-by-digest=true,push=true
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
